@@ -1,13 +1,17 @@
 package com.khtm.test.camel.firstexample.components;
 
-import org.apache.camel.Exchange;
+import org.apache.camel.*;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Map;
 
 @Component
 public class CamelRoute extends RouteBuilder {
+
+
     @Override
     public void configure() throws Exception {
         System.out.println("Start ...");
@@ -15,7 +19,8 @@ public class CamelRoute extends RouteBuilder {
 //        makeRouteForMovingSpecificFile(".txt");
 //        makeRouteForMovingSpecificFileWithBody("java");
 //        fileProcess();
-        multipleFilesProcess();
+//        multipleFilesProcess();
+//        multipleFilesProcessByCostumeProcessor();
         System.out.println("Stop ...");
     }
 
@@ -59,5 +64,16 @@ public class CamelRoute extends RouteBuilder {
                 .when(body().contains("Interest"))
                 .to("file:/home/alireza/Projects/IntelliJ/source-for-apache-camel-example/output?fileName=interest.csv");
     }
+
+//    private void multipleFilesProcessByCostumeProcessor() {
+//        from("file:/home/alireza/Projects/IntelliJ/source-for-apache-camel-example/input")
+//                .unmarshal().csv().split(body().tokenize(",")).choice()
+//                .when(body().contains("Closed"))
+//                .to("file:/home/alireza/Projects/IntelliJ/source-for-apache-camel-example/output?fileName=closed.csv")
+//                .when(body().contains("Pending"))
+//                .to("file:/home/alireza/Projects/IntelliJ/source-for-apache-camel-example/output?fileName=pending.csv")
+//                .when(body().contains("Interest"))
+//                .to();
+//    }
 
 }
