@@ -1,13 +1,13 @@
-package com.khtm.test.camel.camelservice;
+package com.khtm.test.camel.cameldatabase;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CamelServiceApplication {
+public class CamelDatabaseApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CamelServiceApplication.class, args);
+        SpringApplication.run(CamelDatabaseApplication.class, args);
     }
 
 }
