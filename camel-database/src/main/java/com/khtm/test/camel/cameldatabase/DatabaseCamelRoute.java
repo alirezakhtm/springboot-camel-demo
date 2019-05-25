@@ -26,7 +26,7 @@ public class DatabaseCamelRoute extends RouteBuilder {
                 OrderStatus.PENDING +
                 "'" +
                 " where id = :#id")
-                .to("log:com.khtm.test.camel.cameldatabase?level=INFO");
+                .to("log:com.khtm.test.camel.cameldatabase.User?level=INFO");
 
     }
 }
