@@ -6,4 +6,5 @@ public class OrderStatus {
     PENDING*/
     public static final String NEW = "NEW USER";
     public static final String PENDING = "PENDING USER";
+    public static final String CAMCELED = "CANCELED USER";
 }

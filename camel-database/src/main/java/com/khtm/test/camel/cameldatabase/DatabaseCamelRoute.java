@@ -25,7 +25,7 @@ public class DatabaseCamelRoute extends RouteBuilder {
                 "consumer.onConsume=update testdb.tbl_user set status = '" +
                 OrderStatus.PENDING +
                 "'" +
-                " where id = :#id")
+                " where id = :#id").id("Camel-Database")
                 .to("log:com.khtm.test.camel.cameldatabase.User?level=INFO");
 
     }
