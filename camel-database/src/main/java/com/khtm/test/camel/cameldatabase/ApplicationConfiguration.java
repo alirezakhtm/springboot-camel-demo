@@ -1,23 +1,30 @@
 package com.khtm.test.camel.cameldatabase;
 
-import com.google.gson.GsonBuilder;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.apache.activemq.pool.PooledConnection;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.camel.component.jms.JmsConfiguration;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Map;
+import org.springframework.core.env.Environment;
 
 @Configuration
 public class ApplicationConfiguration {
 
+    @Autowired
+    private Environment environment;
+
     /**
      * This bean created for defining camel route, This route gets data from database with status 'NEW USER' and updates
      * them to status 'PENDING USER'
-     * */
+     */
     @Bean
     public RouteBuilder newWebsiteOrderRoute() {
         return new RouteBuilder() {
@@ -40,9 +47,43 @@ public class ApplicationConfiguration {
                             }
                         })
                         .log(">>>> Camel Direct");
+
+                from("sql:select id from testdb.tbl_user where status='" + OrderStatus.PENDING + "'" +
+                        "?consumer.onConsume=update testdb.tbl_user set status='" + OrderStatus.CANCELED + "' where id=:#id")
+                        .id("Camel-Database-to-Queue")
+                        .beanRef("orderItemMessageTranslator", "transformToOrderItemMessage")
+                        .to("activemq:queue:USER_INFORMATION");
             }
         };
     }
 
+    /**
+     * Bean for using apache-activemq
+     * */
+    @Bean
+    public ActiveMQConnectionFactory connectionFactory () {
+        return new ActiveMQConnectionFactory(environment.getProperty("spring.activemq.broker-url"));
+    }
 
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    public PooledConnectionFactory pooledConnectionFactory(){
+        PooledConnectionFactory factory = new PooledConnectionFactory();
+        factory.setConnectionFactory(connectionFactory());
+        factory.setMaxConnections(Integer.parseInt(environment.getProperty("poolConnectionFactory.maxConnection")));
+        return factory;
+    }
+
+    @Bean
+    public JmsConfiguration jmsConfiguration(){
+        JmsConfiguration configuration = new JmsConfiguration();
+        configuration.setConnectionFactory(pooledConnectionFactory());
+        return configuration;
+    }
+
+    @Bean
+    public ActiveMQComponent activeMq(){
+        ActiveMQComponent activeMq = new ActiveMQComponent();
+        activeMq.setConfiguration(jmsConfiguration());
+        return activeMq;
+    }
 }
