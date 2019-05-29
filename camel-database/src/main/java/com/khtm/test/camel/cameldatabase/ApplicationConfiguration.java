@@ -48,10 +48,9 @@ public class ApplicationConfiguration {
                         })
                         .log(">>>> Camel Direct");
 
-                from("sql:select id from testdb.tbl_user where status='" + OrderStatus.PENDING + "'" +
-                        "?consumer.onConsume=update testdb.tbl_user set status='" + OrderStatus.CANCELED + "' where id=:#id")
+                from("sql:select * from testdb.tbl_user where status='" + OrderStatus.PENDING + "'")
                         .id("Camel-Database-to-Queue")
-                        .beanRef("orderItemMessageTranslator", "transformToOrderItemMessage")
+                        //.beanRef("orderItemMessageTranslator", "transformToOrderItemMessage")
                         .to("activemq:queue:USER_INFORMATION");
             }
         };
@@ -69,7 +68,7 @@ public class ApplicationConfiguration {
     public PooledConnectionFactory pooledConnectionFactory(){
         PooledConnectionFactory factory = new PooledConnectionFactory();
         factory.setConnectionFactory(connectionFactory());
-        factory.setMaxConnections(Integer.parseInt(environment.getProperty("poolConnectionFactory.maxConnection")));
+        factory.setMaxConnections(Integer.parseInt(environment.getProperty("spring.activemq.pool.max-connections")));
         return factory;
     }
 
