@@ -37,4 +37,10 @@ public class User {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return String.format("[id => %d, name => %s, family => %s, status => %s]",
+                this.id, this.name, this.family, this.status);
+    }
 }

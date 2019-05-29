@@ -1,15 +1,10 @@
 package com.khtm.test.camel.cameldatabase;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.camel.component.ActiveMQComponent;
-import org.apache.activemq.pool.PooledConnection;
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jms.JmsConfiguration;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +15,9 @@ public class ApplicationConfiguration {
 
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private DbRecordProcessor dbRecordProcessor;
 
     /**
      * This bean created for defining camel route, This route gets data from database with status 'NEW USER' and updates
@@ -33,24 +31,16 @@ public class ApplicationConfiguration {
                 from("sql:select id from testdb.tbl_user where status='" + OrderStatus.PENDING + "'" +
                         "?consumer.onConsume=update testdb.tbl_user set status='" + OrderStatus.CANCELED + "' where id=:#id")
                         .id("Camel-Database-Bean")
-                        .beanRef("orderItemMessageTranslator", "transformToOrderItemMessage")
+                        .to("bean:orderItemMessageTranslator?method=transformToOrderItemMessage")
                         .to("log:com.khtm.test.camel.cameldatabase.User?level=INFO");
 
                 from("sql:select * from testdb.tbl_user where status='" + OrderStatus.NEW + "'")
                         .id("Camel-Database-Logger")
-                        .process(new Processor() {
-                            @Override
-                            public void process(Exchange exchange) throws Exception {
-                                LoggerFactory.getLogger(">>>>>> TEST - BODY >>>>>>>>").info(
-                                        exchange.getIn().getBody(String.class)
-                                );
-                            }
-                        })
+                        .process(dbRecordProcessor)
                         .log(">>>> Camel Direct");
 
                 from("sql:select * from testdb.tbl_user where status='" + OrderStatus.PENDING + "'")
                         .id("Camel-Database-to-Queue")
-                        //.beanRef("orderItemMessageTranslator", "transformToOrderItemMessage")
                         .to("activemq:queue:USER_INFORMATION");
             }
         };
