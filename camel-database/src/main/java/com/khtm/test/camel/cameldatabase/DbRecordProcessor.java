@@ -8,6 +8,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DbRecordProcessor implements Processor {
+
+    private static String name, familu, status;
+
     @Override
     public void process(Exchange exchange) throws Exception {
         String data = exchange.getIn().getBody(String.class);

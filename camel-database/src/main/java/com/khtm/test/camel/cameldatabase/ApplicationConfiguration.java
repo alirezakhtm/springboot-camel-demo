@@ -37,6 +37,8 @@ public class ApplicationConfiguration {
 
                 from("sql:select * from testdb.tbl_user where status='" + OrderStatus.NEW + "'")
                         .id("Camel-Database-Logger")
+                        .split(body()).streaming()
+                        //.process()
                         .process(dbRecordProcessor)
                         .log(">>>> Camel Direct");
 
@@ -46,6 +48,7 @@ public class ApplicationConfiguration {
                         .to("activemq:queue:USER_INFORMATION");
 
                 from("jetty:http://localhost:8963/camel/hello")
+                        .id("Camel-API-JETTY")
                         .log("::: Saied Hello to me :::")
                         .to("sql:update testdb.tbl_user set status='" + OrderStatus.NEW + "'");
             }
