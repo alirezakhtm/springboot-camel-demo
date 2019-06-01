@@ -3,6 +3,7 @@ package com.khtm.test.camel.cameldatabase;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.apache.activemq.pool.PooledConnectionFactory;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jms.JmsConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,12 @@ public class ApplicationConfiguration {
 
                 from("sql:select * from testdb.tbl_user where status='" + OrderStatus.PENDING + "'")
                         .id("Camel-Database-to-Queue")
+                        .split(body()).streaming().log("${body[ID]}")
                         .to("activemq:queue:USER_INFORMATION");
+
+                from("jetty:http://localhost:8963/camel/hello")
+                        .log("::: Saied Hello to me :::")
+                        .to("sql:update testdb.tbl_user set status='" + OrderStatus.NEW + "'");
             }
         };
     }

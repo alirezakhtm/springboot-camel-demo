@@ -118,11 +118,20 @@
 
 
         <!-- Camel dependency for webservice -->
+        <!--<dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-http4</artifactId>
+            <version>3.0.0-M2</version>
+        </dependency>-->
+
+        <!-- https://mvnrepository.com/artifact/org.apache.camel/camel-jetty -->
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-http4-starter</artifactId>
-            <version>3.0.0-M2</version>
+            <artifactId>camel-jetty</artifactId>
+            <version>2.24.0</version>
+            <!--<scope>test</scope>-->
         </dependency>
+
 
     </dependencies>
 
